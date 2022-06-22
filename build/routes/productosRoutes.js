@@ -15,6 +15,8 @@ class ProductRoutes {
         this.router.get('/', productController_1.default.list); /* obtener productos */
         this.router.get('/:id', productController_1.default.getOne); /* obtener por id */
         this.router.post('/', productController_1.default.create); /* crear producto  */
+        this.router.delete('/:id', productController_1.default.delete); /* eliminar */
+        this.router.put('/:id', productController_1.default.update); /* actualizar */
     }
 }
 const indexRoutes = new ProductRoutes();

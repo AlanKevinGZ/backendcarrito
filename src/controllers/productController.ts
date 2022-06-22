@@ -18,9 +18,7 @@ class GameController{
     }
 
    public async getOne(req:Request,res:Response):Promise<any>{
-     /* obtenemos un un producto por el id */
-     /*   res.json({text:'desde'+req.params.id}); */
-     
+     /* obtenemos un un producto por el id */  
     pool.promise().query(`SELECT * FROM productos WHERE id = ${req.params.id} `)
     .then( ([rows]) => {
       
@@ -42,17 +40,13 @@ class GameController{
     public create(req:Request,res:Response){
      /* creamos un producto en la base de datos */
 
-      /*  pool.query( (`INSERT INTO productos (nombre_producto,
-          categoria_producto,precio_producto,descripbr_producto,imagen) VALUES 
-      ('${req.body.nombre_producto}', '${req.body.categoria_producto}',
-       '${ req.body.precio_producto}','${req.body.descripbr_producto}',
-       '${req.body.imagen}')`)); */
-
        pool.promise().query(`INSERT INTO productos (nombre_producto,
-          categoria_producto,precio_producto,descripbr_producto,imagen) VALUES 
+          categoria_producto,precio_producto,descripbr_producto,imagen,
+          cantidad,sub_categoria) VALUES 
       ('${req.body.nombre_producto}', '${req.body.categoria_producto}',
        '${ req.body.precio_producto}','${req.body.descripbr_producto}',
-       '${req.body.imagen}')`)
+       '${req.body.imagen}', '${req.body.cantidad}', 
+       '${req.body.sub_categoria}')`)
        .then( ([rows,fields]) => {
          console.log(rows);
        })
@@ -62,6 +56,35 @@ class GameController{
      
          res.json({message:'creando'}); 
     }
+
+    public update(req:Request,res:Response){
+
+      pool.promise().query(`UPDATE productos SET ? WHERE id = ?`,[req.body, req.params.id])
+      .then( ([rows,fields]) => {
+        console.log(rows);
+      })
+      .catch(()=>console.log('error al editar '))
+      .then( () => console.log('editando...'));
+   
+       res.json({message:'editando producto..'}); 
+
+    }
+
+   public delete(req:Request,res:Response){
+
+    pool.promise().query(`DELETE FROM productos WHERE id=${req.params.id}`)
+   .then( ([rows,fields]) => {
+     console.log(rows);
+   })
+   .catch(()=>console.log('error al eliminar '))
+   .then( () => console.log('elimiando...'));
+
+    res.json({message:'elimando producto..'}); 
+
+
+
+    }
+
 
 }
 

@@ -13,6 +13,8 @@ class ProductRoutes{
         this.router.get('/', gameController.list);/* obtener productos */
         this.router.get('/:id', gameController.getOne);/* obtener por id */
         this.router.post('/',gameController.create);/* crear producto  */
+        this.router.delete('/:id',gameController.delete)/* eliminar */
+        this.router.put('/:id',gameController.update)/* actualizar */
     }
 }
 

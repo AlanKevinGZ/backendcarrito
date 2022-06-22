@@ -31,7 +31,6 @@ class GameController {
     getOne(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             /* obtenemos un un producto por el id */
-            /*   res.json({text:'desde'+req.params.id}); */
             database_1.default.promise().query(`SELECT * FROM productos WHERE id = ${req.params.id} `)
                 .then(([rows]) => {
                 if (Object.keys(rows).length !== 0) {
@@ -48,22 +47,37 @@ class GameController {
     }
     create(req, res) {
         /* creamos un producto en la base de datos */
-        /*  pool.query( (`INSERT INTO productos (nombre_producto,
-            categoria_producto,precio_producto,descripbr_producto,imagen) VALUES
-        ('${req.body.nombre_producto}', '${req.body.categoria_producto}',
-         '${ req.body.precio_producto}','${req.body.descripbr_producto}',
-         '${req.body.imagen}')`)); */
         database_1.default.promise().query(`INSERT INTO productos (nombre_producto,
-          categoria_producto,precio_producto,descripbr_producto,imagen) VALUES 
+          categoria_producto,precio_producto,descripbr_producto,imagen,
+          cantidad,sub_categoria) VALUES 
       ('${req.body.nombre_producto}', '${req.body.categoria_producto}',
        '${req.body.precio_producto}','${req.body.descripbr_producto}',
-       '${req.body.imagen}')`)
+       '${req.body.imagen}', '${req.body.cantidad}', 
+       '${req.body.sub_categoria}')`)
             .then(([rows, fields]) => {
             console.log(rows);
         })
             .catch(() => console.log('error al crear '))
             .then(() => console.log('creado...'));
         res.json({ message: 'creando' });
+    }
+    update(req, res) {
+        database_1.default.promise().query(`UPDATE productos SET ? WHERE id = ?`, [req.body, req.params.id])
+            .then(([rows, fields]) => {
+            console.log(rows);
+        })
+            .catch(() => console.log('error al editar '))
+            .then(() => console.log('editando...'));
+        res.json({ message: 'editando producto..' });
+    }
+    delete(req, res) {
+        database_1.default.promise().query(`DELETE FROM productos WHERE id=${req.params.id}`)
+            .then(([rows, fields]) => {
+            console.log(rows);
+        })
+            .catch(() => console.log('error al eliminar '))
+            .then(() => console.log('elimiando...'));
+        res.json({ message: 'elimando producto..' });
     }
 }
 exports.gameController = new GameController();
