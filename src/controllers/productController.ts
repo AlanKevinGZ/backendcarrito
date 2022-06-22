@@ -58,7 +58,7 @@ class GameController{
     }
 
     public update(req:Request,res:Response){
-
+        
       pool.promise().query(`UPDATE productos SET ? WHERE id = ?`,[req.body, req.params.id])
       .then( ([rows,fields]) => {
         console.log(rows);
