@@ -72,18 +72,16 @@ class GameController{
 
    public delete(req:Request,res:Response){
 
-    pool.promise().query(`DELETE FROM productos WHERE id=${req.params.id}`)
-   .then( ([rows,fields]) => {
-     console.log(rows);
-   })
-   .catch(()=>console.log('error al eliminar '))
-   .then( () => console.log('elimiando...'));
+        pool.promise().query(`DELETE FROM productos WHERE id=${req.params.id}`)
+       .then( ([rows,fields]) => {
+         console.log(rows);
+       })
+       .catch(()=>console.log('error al eliminar '))
+       .then( () => console.log('elimiando...'));
 
-    res.json({message:'elimando producto..'}); 
+        res.json({message:'elimando producto..'});
 
-
-
-    }
+   }
 
 
 }
