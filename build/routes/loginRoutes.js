@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const loginController_1 = __importDefault(require("../controllers/loginController"));
-class ProductRoutes {
+class LoginRoutes {
     constructor() {
         this.router = (0, express_1.Router)();
         this.config();
@@ -17,5 +17,5 @@ class ProductRoutes {
         this.router.delete('/:id', loginController_1.default.delete); /* eliminar usuario */
     }
 }
-const indexRoutes = new ProductRoutes();
+const indexRoutes = new LoginRoutes();
 exports.default = indexRoutes.router;

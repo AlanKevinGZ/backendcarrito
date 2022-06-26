@@ -1,7 +1,7 @@
 import {Router} from 'express';
 import LoginController from "../controllers/loginController";
 
-class ProductRoutes{
+class LoginRoutes{
     public router:Router=Router();
 
     constructor(){
@@ -16,5 +16,5 @@ class ProductRoutes{
     }
 }
 
-const indexRoutes=new ProductRoutes();
+const indexRoutes=new LoginRoutes();
 export default indexRoutes.router;
