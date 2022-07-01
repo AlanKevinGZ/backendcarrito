@@ -59,6 +59,22 @@ class loginController{
             } )
     }
 
+    public async listid(req:Request,res:Response):Promise<any>{
+        /* obtenemos un un producto por el id */
+        pool.promise().query(`SELECT * FROM  usuario_direccion,usuario,rol WHERE usuario_direccion.id_usuario=${req.params.id} 
+        AND usuario.id_usuario=${req.params.id} AND rol.id_rol=${req.params.id} `)
+            .then( ([rows]) => {
+                if(Object.keys(rows).length !== 0  ){
+                    return res.json(rows);
+                }else{
+                    res.status(400).json({text:'no existe el usuario'})
+                }
+            })
+            .catch( ()=>{
+                console.log('error');
+            } )
+    }
+
     public recover(req:Request,res:Response){
         /* recuperamos contraseña por correo */
         pool.promise().query(`SELECT password FROM usuario WHERE correo = "${req.body.correo}" `)

@@ -76,6 +76,24 @@ class loginController {
             });
         });
     }
+    listid(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            /* obtenemos un un producto por el id */
+            database_1.default.promise().query(`SELECT * FROM  usuario_direccion,usuario,rol WHERE usuario_direccion.id_usuario=${req.params.id} 
+        AND usuario.id_usuario=${req.params.id} AND rol.id_rol=${req.params.id} `)
+                .then(([rows]) => {
+                if (Object.keys(rows).length !== 0) {
+                    return res.json(rows);
+                }
+                else {
+                    res.status(400).json({ text: 'no existe el usuario' });
+                }
+            })
+                .catch(() => {
+                console.log('error');
+            });
+        });
+    }
     recover(req, res) {
         /* recuperamos contraseña por correo */
         database_1.default.promise().query(`SELECT password FROM usuario WHERE correo = "${req.body.correo}" `)
