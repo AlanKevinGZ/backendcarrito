@@ -15,10 +15,59 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.LoginController = void 0;
 const database_1 = __importDefault(require("../database"));
 class loginController {
-    list(req, res) {
+    listuser(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            /* seleccionamos todo los usuarios */
-            database_1.default.promise().query("SELECT * FROM login ")
+            /* seleccionamos todos los usuarios */
+            database_1.default.promise().query('SELECT * FROM usuario')
+                .then(([rows]) => {
+                res.json(rows);
+            })
+                .catch(() => {
+                console.log('error');
+            });
+        });
+    }
+    listdirc(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            /* seleccionamos todos las direcciones */
+            database_1.default.promise().query('SELECT * FROM usuario_direccion')
+                .then(([rows]) => {
+                res.json(rows);
+            })
+                .catch(() => {
+                console.log('error');
+            });
+        });
+    }
+    listrol(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            /* seleccionamos todos los roles */
+            database_1.default.promise().query('SELECT * FROM rol')
+                .then(([rows]) => {
+                res.json(rows);
+            })
+                .catch(() => {
+                console.log('error');
+            });
+        });
+    }
+    listuserrol(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            /* mostramos la direccion de cada usuario*/
+            database_1.default.promise().query('SELECT usuario.nombre, rol.nombre_rol FROM rol INNER JOIN usuario WHERE usuario.Id_rol=rol.Id_rol')
+                .then(([rows]) => {
+                res.json(rows);
+            })
+                .catch(() => {
+                console.log('error');
+            });
+        });
+    }
+    listuserdirc(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            /* mostramos el rol de cada usuario*/
+            database_1.default.promise().query(`SELECT usuario.nombre, usuario_direccion.calle,numero,colonia,municipio,estado,pais,codigo_postal FROM
+        usuario_direccion INNER JOIN usuario WHERE usuario.Id_usuario=usuario_direccion.Id_usuario `)
                 .then(([rows]) => {
                 res.json(rows);
             })
@@ -29,7 +78,7 @@ class loginController {
     }
     recover(req, res) {
         /* recuperamos contraseña por correo */
-        database_1.default.promise().query(`SELECT password FROM login WHERE correo = "${req.body.correo}" `)
+        database_1.default.promise().query(`SELECT password FROM usuario WHERE correo = "${req.body.correo}" `)
             .then(([rows]) => {
             res.json(rows);
         })
@@ -39,9 +88,15 @@ class loginController {
     }
     register(req, res) {
         /* registramos un usuario en la base de datos */
-        database_1.default.promise().query(`INSERT INTO login (nombre_completo,nombre_usuario,correo,password) VALUES 
-        ('${req.body.nombre_completo}', '${req.body.nombre_usuario}',
-        '${req.body.correo}','${req.body.password}')`)
+        database_1.default.promise().query(`INSERT INTO rol (id_rol,nombre_rol) VALUES 
+        ('${req.body.id_rol}', '${req.body.nombre_rol}')`);
+        database_1.default.promise().query(`INSERT INTO usuario (id_usuario,nombre,id_rol,password,correo) VALUES
+        ('${req.body.id_usuario}', '${req.body.nombre}', '${req.body.id_rol}'
+        ,'${req.body.password}', '${req.body.correo}')`);
+        database_1.default.promise().query(`INSERT INTO usuario_direccion (id_usuario_direccion,id_usuario,calle,numero,colonia,municipio,estado,pais,codigo_postal) VALUES
+        ('${req.body.id_usuario_direccion}', '${req.body.id_usuario}', '${req.body.calle}'
+        ,'${req.body.numero}', '${req.body.colonia}', '${req.body.municipio}'
+        , '${req.body.estado}', '${req.body.pais}', '${req.body.codigo_postal}')`)
             .then(([rows, fields]) => {
             console.log(rows);
         })
@@ -51,13 +106,25 @@ class loginController {
     }
     delete(req, res) {
         /* eliminamos un usuario de la base de datos */
-        database_1.default.promise().query(`DELETE FROM login WHERE id=${req.params.id}`)
+        database_1.default.promise().query(`DELETE usuario_direccion,usuario,rol FROM usuario_direccion,usuario,rol WHERE 
+        usuario_direccion.id_usuario=${req.params.id} AND usuario.id_usuario=${req.params.id} AND rol.id_rol=${req.params.id} `)
             .then(([rows, fields]) => {
             console.log(rows);
         })
             .catch(() => console.log('error al eliminar'))
             .then(() => console.log('eliminado'));
         res.json({ message: 'usuario eliminado' });
+    }
+    update(req, res) {
+        /* actualizamos un usuario de la base de datos */
+        database_1.default.promise().query(`UPDATE usuario_direccion,usuario,rol SET ? WHERE
+        usuario_direccion.id_usuario=${req.params.id} AND usuario.id_usuario=${req.params.id} AND rol.id_rol=${req.params.id}`, [req.body])
+            .then(([rows, fields]) => {
+            console.log(rows);
+        })
+            .catch(() => console.log('error al editar '))
+            .then(() => console.log('editado...'));
+        res.json({ message: 'usuario editado..' });
     }
 }
 exports.LoginController = new loginController();

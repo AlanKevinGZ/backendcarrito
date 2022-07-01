@@ -5,17 +5,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const loginController_1 = __importDefault(require("../controllers/loginController"));
-class ProductRoutes {
+class LoginRoutes {
     constructor() {
         this.router = (0, express_1.Router)();
         this.config();
     }
     config() {
-        this.router.get('/', loginController_1.default.list); /* obtener usuarios */
+        this.router.get('/usuarios', loginController_1.default.listuser); /* obtener usuarios */
+        this.router.get('/direcciones', loginController_1.default.listdirc); /* obtener direcciones */
+        this.router.get('/roles', loginController_1.default.listrol); /* obtener roles*/
+        this.router.get('/userrol', loginController_1.default.listuserrol); /* obtener usuarios y su rol*/
+        this.router.get('/userdirc', loginController_1.default.listuserdirc); /* obtener usuarios y su direccion*/
         this.router.post('/recover', loginController_1.default.recover); /* recuperar contraseña */
         this.router.post('/register', loginController_1.default.register); /* registrar usuario  */
         this.router.delete('/:id', loginController_1.default.delete); /* eliminar usuario */
+        this.router.put('/:id', loginController_1.default.update); /* actualizar usuario */
     }
 }
-const indexRoutes = new ProductRoutes();
+const indexRoutes = new LoginRoutes();
 exports.default = indexRoutes.router;
