@@ -5,6 +5,11 @@ import cors from 'cors';
 
 import indexRoutes from './routes/indexRoutes';
 import productosRoutes from './routes/productosRoutes';
+<<<<<<< Updated upstream
+=======
+import loginRoutes from "./routes/loginRoutes";
+import facturaRouters from './routes/facturaRouters';
+>>>>>>> Stashed changes
 
 class Server{
 
@@ -27,6 +32,11 @@ class Server{
     routes():void{
         this.app.use('/',indexRoutes);
         this.app.use('/api/productos',productosRoutes);
+<<<<<<< Updated upstream
+=======
+        this.app.use('/api/login',loginRoutes);
+        this.app.use('/api/factura', facturaRouters);
+>>>>>>> Stashed changes
     }
     
     start():void{
