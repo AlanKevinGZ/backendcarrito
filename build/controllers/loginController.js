@@ -15,6 +15,18 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.LoginController = void 0;
 const database_1 = __importDefault(require("../database"));
 class loginController {
+    listurd(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            /* seleccionamos todos los usuarios, con su rol y su direccion */
+            database_1.default.promise().query('SELECT usuario.id_rol,usuario.id_usuario,nombre_rol,nombre,password,correo,calle,numero,colonia,municipio,estado,pais,codigo_postal FROM rol,usuario,usuario_direccion  WHERE rol.id_rol = usuario.id_rol AND usuario.id_usuario = usuario_direccion.id_usuario;')
+                .then(([rows]) => {
+                res.json(rows);
+            })
+                .catch(() => {
+                console.log('error');
+            });
+        });
+    }
     listuser(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             /* seleccionamos todos los usuarios */
@@ -104,15 +116,25 @@ class loginController {
             console.log('error no se encontro la contraseña');
         });
     }
+    login(req, res) {
+        /* recuperamos contraseña por correo */
+        database_1.default.promise().query(`SELECT rol.nombre_rol FROM rol,usuario WHERE rol.id_rol=usuario.id_rol and usuario.correo = "${req.body.correo}" and usuario.password = "${req.body.password}"`)
+            .then(([rows]) => {
+            res.json(rows);
+        })
+            .catch(() => {
+            console.log('error no se encontro la contraseña');
+        });
+    }
     register(req, res) {
         /* registramos un usuario en la base de datos */
-        database_1.default.promise().query(`INSERT INTO rol (id_rol,nombre_rol) VALUES 
-        ('${req.body.id_rol}', '${req.body.nombre_rol}')`);
-        database_1.default.promise().query(`INSERT INTO usuario (id_usuario,nombre,id_rol,password,correo) VALUES
-        ('${req.body.id_usuario}', '${req.body.nombre}', '${req.body.id_rol}'
+        database_1.default.promise().query(`INSERT INTO rol (nombre_rol) VALUES 
+        ('${req.body.nombre_rol}')`);
+        database_1.default.promise().query(`INSERT INTO usuario (nombre,id_rol,password,correo) VALUES
+        ('${req.body.nombre}', '${req.body.id_rol}'
         ,'${req.body.password}', '${req.body.correo}')`);
-        database_1.default.promise().query(`INSERT INTO usuario_direccion (id_usuario_direccion,id_usuario,calle,numero,colonia,municipio,estado,pais,codigo_postal) VALUES
-        ('${req.body.id_usuario_direccion}', '${req.body.id_usuario}', '${req.body.calle}'
+        database_1.default.promise().query(`INSERT INTO usuario_direccion (id_usuario,calle,numero,colonia,municipio,estado,pais,codigo_postal) VALUES
+        ( '${req.body.id_usuario}', '${req.body.calle}'
         ,'${req.body.numero}', '${req.body.colonia}', '${req.body.municipio}'
         , '${req.body.estado}', '${req.body.pais}', '${req.body.codigo_postal}')`)
             .then(([rows, fields]) => {
