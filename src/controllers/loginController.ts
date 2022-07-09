@@ -3,9 +3,32 @@ import pool  from '../database';
 
 class loginController{
 
+    public async listusuario (req:Request,res:Response){
+        /* seleccionamos todos los usuarios, con su rol y su direccion */
+        pool.promise().query(`SELECT * FROM usuario`)
+            .then( ([rows]) => {
+                res.json(rows);
+            })
+            .catch( ()=>{
+                console.log('error');
+            } )
+    }
+
+    public async listdireccion (req:Request,res:Response){
+        /* seleccionamos todos los usuarios, con su rol y su direccion */
+        pool.promise().query(`SELECT * FROM direccionus`)
+            .then( ([rows]) => {
+                res.json(rows);
+            })
+            .catch( ()=>{
+                console.log('error');
+            } )
+    }
+
     public async listurd (req:Request,res:Response){
         /* seleccionamos todos los usuarios, con su rol y su direccion */
-        pool.promise().query('SELECT usuario.id_rol,usuario.id_usuario,nombre_rol,nombre,password,correo,calle,numero,colonia,municipio,estado,pais,codigo_postal FROM rol,usuario,usuario_direccion  WHERE rol.id_rol = usuario.id_rol AND usuario.id_usuario = usuario_direccion.id_usuario;')
+        pool.promise().query(`SELECT usuario.id_usuario,nombre,password,correo,nombre_rol,calle,numero,colonia,municipio,estado,pais,codigo_postal FROM 
+        usuario,rol,direccionus,userrol where rol.id_rol=userrol.id_rol and userrol.id_usuario=usuario.id_usuario and direccionus.id_usuario=usuario.id_usuario`)
             .then( ([rows]) => {
                 res.json(rows);
             })
@@ -14,9 +37,10 @@ class loginController{
             } )
     }
 
-    public async listuser (req:Request,res:Response){
-        /* seleccionamos todos los usuarios */
-        pool.promise().query('SELECT * FROM usuario')
+    public async listuseryrol (req:Request,res:Response){
+        /* mostramos el rol de cada usuario*/
+        pool.promise().query(`SELECT usuario.id_usuario,nombre,nombre_rol FROM usuario,rol,userrol where 
+        rol.id_rol=userrol.id_rol and userrol.id_usuario=usuario.id_usuario`)
             .then( ([rows]) => {
                 res.json(rows);
             })
@@ -25,20 +49,10 @@ class loginController{
             } )
     }
 
-    public async listdirc (req:Request,res:Response){
-        /* seleccionamos todos las direcciones */
-        pool.promise().query('SELECT * FROM usuario_direccion')
-            .then( ([rows]) => {
-                res.json(rows);
-            })
-            .catch( ()=>{
-                console.log('error');
-            } )
-    }
-
-    public async listrol (req:Request,res:Response){
-        /* seleccionamos todos los roles */
-        pool.promise().query('SELECT * FROM rol')
+    public async listuserydirc (req:Request,res:Response){
+        /* mostramos la direccion de cada usuario*/
+        pool.promise().query(`SELECT usuario.id_usuario,nombre,calle,numero,colonia,municipio,estado,pais,codigo_postal FROM 
+        usuario,direccionus,userrol where userrol.id_usuario=usuario.id_usuario and direccionus.id_usuario=usuario.id_usuario`)
             .then( ([rows]) => {
                 res.json(rows);
             })
@@ -48,8 +62,9 @@ class loginController{
     }
 
     public async listuserrol (req:Request,res:Response){
-        /* mostramos la direccion de cada usuario*/
-        pool.promise().query('SELECT usuario.nombre, rol.nombre_rol FROM rol INNER JOIN usuario WHERE usuario.Id_rol=rol.Id_rol')
+        /* mostramos el userrol relacionado*/
+        pool.promise().query(`SELECT userrol.id_userrol,userrol.id_usuario,userrol.id_rol,nombre,nombre_rol FROM usuario,rol,direccionus,userrol where 
+        rol.id_rol=userrol.id_rol and userrol.id_usuario=usuario.id_usuario and direccionus.id_usuario=usuario.id_usuario`)
             .then( ([rows]) => {
                 res.json(rows);
             })
@@ -58,31 +73,14 @@ class loginController{
             } )
     }
 
-    public async listuserdirc (req:Request,res:Response){
-        /* mostramos el rol de cada usuario*/
-        pool.promise().query(`SELECT usuario.nombre, usuario_direccion.calle,numero,colonia,municipio,estado,pais,codigo_postal FROM
-        usuario_direccion INNER JOIN usuario WHERE usuario.Id_usuario=usuario_direccion.Id_usuario `)
+    public login(req:Request,res:Response){
+        /* recuperamos contraseña por correo */
+        pool.promise().query(`SELECT * FROM usuario WHERE usuario.correo = "${req.body.correo}" and usuario.password = "${req.body.password}" `)
             .then( ([rows]) => {
                 res.json(rows);
             })
             .catch( ()=>{
-                console.log('error');
-            } )
-    }
-
-    public async listid(req:Request,res:Response):Promise<any>{
-        /* obtenemos un un producto por el id */
-        pool.promise().query(`SELECT * FROM  usuario_direccion,usuario,rol WHERE usuario_direccion.id_usuario=${req.params.id} 
-        AND usuario.id_usuario=${req.params.id} AND rol.id_rol=${req.params.id} `)
-            .then( ([rows]) => {
-                if(Object.keys(rows).length !== 0  ){
-                    return res.json(rows);
-                }else{
-                    res.status(400).json({text:'no existe el usuario'})
-                }
-            })
-            .catch( ()=>{
-                console.log('error');
+                console.log('usuario no registrado');
             } )
     }
 
@@ -97,41 +95,45 @@ class loginController{
             } )
     }
 
-    public login(req:Request,res:Response){
-        /* recuperamos contraseña por correo */
-        pool.promise().query(`SELECT rol.nombre_rol FROM rol,usuario WHERE rol.id_rol=usuario.id_rol and usuario.correo = "${req.body.correo}" and usuario.password = "${req.body.password}"`)
-            .then( ([rows]) => {
-                res.json(rows);
-            })
-            .catch( ()=>{
-                console.log('error no se encontro la contraseña');
-            } )
-    }
-
-    public register(req:Request,res:Response){
+    public registeruser(req:Request,res:Response){
         /* registramos un usuario en la base de datos */
-        pool.promise().query(`INSERT INTO rol (nombre_rol) VALUES 
-        ('${req.body.nombre_rol}')`)
-        pool.promise().query(`INSERT INTO usuario (nombre,id_rol,password,correo) VALUES
-        ('${req.body.nombre}', '${req.body.id_rol}'
-        ,'${req.body.password}', '${req.body.correo}')`)
-        pool.promise().query(`INSERT INTO usuario_direccion (id_usuario,calle,numero,colonia,municipio,estado,pais,codigo_postal) VALUES
-        ( '${req.body.id_usuario}', '${req.body.calle}'
-        ,'${req.body.numero}', '${req.body.colonia}', '${req.body.municipio}'
-        , '${req.body.estado}', '${req.body.pais}', '${req.body.codigo_postal}')`)
+        pool.promise().query(`insert into usuario (nombre,password,correo)  values ('${req.body.nombre}','${req.body.password}','${req.body.correo}')`)
             .then( ([rows,fields]) => {
                 console.log(rows);
             })
             .catch(()=>console.log('error al registrar'))
             .then( () => console.log('registrado'));
-
         res.json({message:'usuario registrado'});
+    }
+
+    public registerdirc(req:Request,res:Response){
+        /* registramos un usuario en la base de datos */
+        pool.promise().query(`insert into direccionus (calle,numero,colonia,municipio,estado,pais,codigo_postal) values 
+        ('${req.body.calle}','${req.body.numero}','${req.body.colonia}','${req.body.municipio}','${req.body.estadio}',
+        '${req.body.pais}','${req.body.codigo_postal}')`)
+            .then( ([rows,fields]) => {
+                console.log(rows);
+            })
+            .catch(()=>console.log('error al registrar'))
+            .then( () => console.log('registrado'));
+        res.json({message:'direccion de usuario registrada'});
+    }
+
+    public registeruserrol(req:Request,res:Response){
+        /* registramos un usuario en la base de datos */
+        pool.promise().query(`insert into userrol (id_usuario,id_rol) values (${req.body.id_usuario},${req.body.id_rol})`)
+            .then( ([rows,fields]) => {
+                console.log(rows);
+            })
+            .catch(()=>console.log('error al registrar'))
+            .then( () => console.log('registrado'));
+        res.json({message:'rol de usuario registrado'});
     }
 
     public delete(req:Request,res:Response){
         /* eliminamos un usuario de la base de datos */
-        pool.promise().query(`DELETE usuario_direccion,usuario,rol FROM usuario_direccion,usuario,rol WHERE 
-        usuario_direccion.id_usuario=${req.params.id} AND usuario.id_usuario=${req.params.id} AND rol.id_rol=${req.params.id} `)
+        pool.promise().query(`DELETE userrol,usuario,direccionus FROM userrol,usuario,direccionus WHERE 
+        userrol.id_usuario = ${req.params.id} and usuario.id_usuario = ${req.params.id} and direccionus.id_usuario = ${req.params.id}`)
             .then( ([rows,fields]) => {
                 console.log(rows);
             })
@@ -143,8 +145,8 @@ class loginController{
 
     public update(req:Request,res:Response){
         /* actualizamos un usuario de la base de datos */
-        pool.promise().query(`UPDATE usuario_direccion,usuario,rol SET ? WHERE
-        usuario_direccion.id_usuario=${req.params.id} AND usuario.id_usuario=${req.params.id} AND rol.id_rol=${req.params.id}`,[req.body])
+        pool.promise().query(`UPDATE usuario,direccionus SET ? WHERE usuario.id_usuario = ${req.params.id} 
+        and direccionus.id_usuario = ${req.params.id}`,[req.body])
             .then( ([rows,fields]) => {
                 console.log(rows);
             })
