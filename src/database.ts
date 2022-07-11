@@ -7,7 +7,6 @@ const pool = mysql.createPool(keys.database);
 pool.getConnection(function(err,conn){
     if (err) {
         console.log(err);
-        
     }else{
         console.log('DB is conected');
     }

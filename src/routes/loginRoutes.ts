@@ -1,5 +1,8 @@
-import {Router} from 'express';
+import {NextFunction, Request, Response, Router} from 'express';
 import LoginController from "../controllers/loginController";
+import loginController from "../controllers/loginController";
+
+const jwt = require('jsonwebtoken');
 
 class LoginRoutes{
     public router:Router=Router();
@@ -12,17 +15,23 @@ class LoginRoutes{
         this.router.get('/usuarios', LoginController.listusuario);/* obtener usuarios */
         this.router.get('/direccion', LoginController.listdireccion);/* obtener direcciones */
         this.router.get('/', LoginController.listurd);/* obtener usuarios, direcciones y roles */
-        this.router.get('/useryrol', LoginController.listuseryrol);/* obtener usuarios y su rol*/
-        this.router.get('/userydirc', LoginController.listuserydirc);/* obtener usuarios y su direccion*/
-        this.router.get('/userrol', LoginController.listuserrol);/* obtener tabla userrol relacionada*/
-
-        this.router.post('/login', LoginController.login);/* ingresar usuario*/
-        this.router.post('/recover', LoginController.recover);/* recuperar contraseña */
+        this.router.get('/rol', LoginController.listrol);/* obtener tabla usuario y rol*/
+        this.router.get('/:id', LoginController.iduser);/* obtener usuario por id*/
         this.router.post('/registeruser',LoginController.registeruser);/* registrar usuario  */
         this.router.post('/registerdirc',LoginController.registerdirc);/* registrar direccion de usuario  */
-        this.router.post('/registerusr',LoginController.registeruserrol);/* registrar el rol del usuario */
         this.router.delete('/:id',LoginController.delete)/* eliminar usuario */
         this.router.put('/:id',LoginController.update)/* actualizar usuario */
+        this.router.post('/login',LoginController.login);/* iniciar sesion del  usuario */
+
+        this.router.post('/test',verifyToken,loginController.test);
+    }
+}
+function verifyToken(req:Request,res:Response,next:NextFunction){
+    if(!req.headers.authorization) return res.status(401).json('no autorizado');
+    const token = req.headers.authorization.substring(7);
+    if(token!==''){
+        const content = jwt.verify(token,'stil');
+        console.log(content);
     }
 }
 

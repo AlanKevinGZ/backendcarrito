@@ -14,10 +14,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LoginController = void 0;
 const database_1 = __importDefault(require("../database"));
+const jwt = require('jsonwebtoken');
 class loginController {
     listusuario(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            /* seleccionamos todos los usuarios, con su rol y su direccion */
+            /* seleccionamos todos los usuarios*/
             database_1.default.promise().query(`SELECT * FROM usuario`)
                 .then(([rows]) => {
                 res.json(rows);
@@ -29,7 +30,7 @@ class loginController {
     }
     listdireccion(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            /* seleccionamos todos los usuarios, con su rol y su direccion */
+            /* seleccionamos la direccion de los usuarios*/
             database_1.default.promise().query(`SELECT * FROM direccionus`)
                 .then(([rows]) => {
                 res.json(rows);
@@ -42,8 +43,8 @@ class loginController {
     listurd(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             /* seleccionamos todos los usuarios, con su rol y su direccion */
-            database_1.default.promise().query(`SELECT usuario.id_usuario,nombre,password,correo,nombre_rol,calle,numero,colonia,municipio,estado,pais,codigo_postal FROM 
-        usuario,rol,direccionus,userrol where rol.id_rol=userrol.id_rol and userrol.id_usuario=usuario.id_usuario and direccionus.id_usuario=usuario.id_usuario`)
+            database_1.default.promise().query(`SELECT usuario.id_usuario,nombre,correo,password,nombre_rol,calle,numero,colonia,municipio,estado,pais,codigo_postal 
+        FROM usuario,rol,direccionus where rol.id_rol=usuario.id_rol and direccionus.id_usuario=usuario.id_usuario `)
                 .then(([rows]) => {
                 res.json(rows);
             })
@@ -52,11 +53,10 @@ class loginController {
             });
         });
     }
-    listuseryrol(req, res) {
+    listrol(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            /* mostramos el rol de cada usuario*/
-            database_1.default.promise().query(`SELECT usuario.id_usuario,nombre,nombre_rol FROM usuario,rol,userrol where 
-        rol.id_rol=userrol.id_rol and userrol.id_usuario=usuario.id_usuario`)
+            /* mostramos el rol del usuario*/
+            database_1.default.promise().query(`SELECT usuario.id_usuario,nombre,nombre_rol FROM usuario,rol where rol.id_rol=usuario.id_rol `)
                 .then(([rows]) => {
                 res.json(rows);
             })
@@ -65,26 +65,18 @@ class loginController {
             });
         });
     }
-    listuserydirc(req, res) {
+    iduser(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            /* mostramos la direccion de cada usuario*/
-            database_1.default.promise().query(`SELECT usuario.id_usuario,nombre,calle,numero,colonia,municipio,estado,pais,codigo_postal FROM 
-        usuario,direccionus,userrol where userrol.id_usuario=usuario.id_usuario and direccionus.id_usuario=usuario.id_usuario`)
+            /* mostramos un usuario por el id */
+            database_1.default.promise().query(`SELECT usuario.id_usuario,nombre,correo,password,usuario.id_rol,calle,numero,colonia,municipio,estado,pais,codigo_postal FROM 
+        usuario,rol,direccionus where rol.id_rol=usuario.id_rol and direccionus.id_usuario=usuario.id_usuario and usuario.id_usuario = ${req.params.id} `)
                 .then(([rows]) => {
-                res.json(rows);
-            })
-                .catch(() => {
-                console.log('error');
-            });
-        });
-    }
-    listuserrol(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            /* mostramos el userrol relacionado*/
-            database_1.default.promise().query(`SELECT userrol.id_userrol,userrol.id_usuario,userrol.id_rol,nombre,nombre_rol FROM usuario,rol,direccionus,userrol where 
-        rol.id_rol=userrol.id_rol and userrol.id_usuario=usuario.id_usuario and direccionus.id_usuario=usuario.id_usuario`)
-                .then(([rows]) => {
-                res.json(rows);
+                if (Object.keys(rows).length !== 0) {
+                    return res.json(rows);
+                }
+                else {
+                    res.status(400).json({ text: 'no existe el usuario' });
+                }
             })
                 .catch(() => {
                 console.log('error');
@@ -92,28 +84,26 @@ class loginController {
         });
     }
     login(req, res) {
-        /* recuperamos contraseña por correo */
-        database_1.default.promise().query(`SELECT * FROM usuario WHERE usuario.correo = "${req.body.correo}" and usuario.password = "${req.body.password}" `)
-            .then(([rows]) => {
-            res.json(rows);
+        /* ingresar usuario */
+        database_1.default.promise().query(`SELECT nombre,id_rol FROM usuario WHERE correo = "${req.body.correo}" AND password = "${req.body.password}"`)
+            .then(([rows, fields]) => {
+            if (Object(rows).length > 0) {
+                let data = JSON.stringify(Object(rows)[0]);
+                const token = jwt.sign(data, 'still');
+                res.json({ token });
+            }
+            else {
+                res.json('Usuario o clave incorrecto');
+            }
         })
-            .catch(() => {
-            console.log('usuario no registrado');
-        });
+            .catch(() => console.log('error no existe el usuario '));
     }
-    recover(req, res) {
-        /* recuperamos contraseña por correo */
-        database_1.default.promise().query(`SELECT password FROM usuario WHERE correo = "${req.body.correo}" `)
-            .then(([rows]) => {
-            res.json(rows);
-        })
-            .catch(() => {
-            console.log('error no se encontro la contraseña');
-        });
+    test(req, res) {
+        res.json('informacion secreta');
     }
     registeruser(req, res) {
         /* registramos un usuario en la base de datos */
-        database_1.default.promise().query(`insert into usuario (nombre,password,correo)  values ('${req.body.nombre}','${req.body.password}','${req.body.correo}')`)
+        database_1.default.promise().query(`insert into usuario (nombre,password,correo,id_rol)  values ('${req.body.nombre}','${req.body.password}','${req.body.correo}','${req.body.id_rol}')`)
             .then(([rows, fields]) => {
             console.log(rows);
         })
@@ -124,7 +114,7 @@ class loginController {
     registerdirc(req, res) {
         /* registramos un usuario en la base de datos */
         database_1.default.promise().query(`insert into direccionus (calle,numero,colonia,municipio,estado,pais,codigo_postal) values 
-        ('${req.body.calle}','${req.body.numero}','${req.body.colonia}','${req.body.municipio}','${req.body.estadio}',
+        ('${req.body.calle}','${req.body.numero}','${req.body.colonia}','${req.body.municipio}','${req.body.estado}',
         '${req.body.pais}','${req.body.codigo_postal}')`)
             .then(([rows, fields]) => {
             console.log(rows);
@@ -133,20 +123,10 @@ class loginController {
             .then(() => console.log('registrado'));
         res.json({ message: 'direccion de usuario registrada' });
     }
-    registeruserrol(req, res) {
-        /* registramos un usuario en la base de datos */
-        database_1.default.promise().query(`insert into userrol (id_usuario,id_rol) values (${req.body.id_usuario},${req.body.id_rol})`)
-            .then(([rows, fields]) => {
-            console.log(rows);
-        })
-            .catch(() => console.log('error al registrar'))
-            .then(() => console.log('registrado'));
-        res.json({ message: 'rol de usuario registrado' });
-    }
     delete(req, res) {
         /* eliminamos un usuario de la base de datos */
-        database_1.default.promise().query(`DELETE userrol,usuario,direccionus FROM userrol,usuario,direccionus WHERE 
-        userrol.id_usuario = ${req.params.id} and usuario.id_usuario = ${req.params.id} and direccionus.id_usuario = ${req.params.id}`)
+        database_1.default.promise().query(`DELETE usuario,direccionus FROM usuario,direccionus WHERE 
+        usuario.id_usuario = ${req.params.id} and direccionus.id_usuario = ${req.params.id}`)
             .then(([rows, fields]) => {
             console.log(rows);
         })
@@ -157,7 +137,7 @@ class loginController {
     update(req, res) {
         /* actualizamos un usuario de la base de datos */
         database_1.default.promise().query(`UPDATE usuario,direccionus SET ? WHERE usuario.id_usuario = ${req.params.id} 
-        and direccionus.id_usuario = ${req.params.id}`, [req.body])
+        AND direccionus.id_usuario = ${req.params.id}`, [req.body])
             .then(([rows, fields]) => {
             console.log(rows);
         })
