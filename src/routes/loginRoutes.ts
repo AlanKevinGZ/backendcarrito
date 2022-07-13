@@ -22,10 +22,11 @@ class LoginRoutes{
         this.router.delete('/:id',LoginController.delete)/* eliminar usuario */
         this.router.put('/:id',LoginController.update)/* actualizar usuario */
         this.router.post('/login',LoginController.login);/* iniciar sesion del  usuario */
-
-        this.router.post('/test',verifyToken,loginController.test);
+        /*
+        this.router.post('/test',verifyToken,loginController.test);*/
     }
 }
+/*
 function verifyToken(req:Request,res:Response,next:NextFunction){
     if(!req.headers.authorization) return res.status(401).json('no autorizado');
     const token = req.headers.authorization.substring(7);
@@ -33,7 +34,7 @@ function verifyToken(req:Request,res:Response,next:NextFunction){
         const content = jwt.verify(token,'stil');
         console.log(content);
     }
-}
+}*/
 
 const indexRoutes=new LoginRoutes();
 export default indexRoutes.router;

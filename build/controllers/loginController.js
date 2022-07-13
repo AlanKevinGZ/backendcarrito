@@ -43,7 +43,7 @@ class loginController {
     listurd(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             /* seleccionamos todos los usuarios, con su rol y su direccion */
-            database_1.default.promise().query(`SELECT usuario.id_usuario,nombre,correo,password,nombre_rol,calle,numero,colonia,municipio,estado,pais,codigo_postal 
+            database_1.default.promise().query(`SELECT usuario.id_usuario,nombre,correo,password,usuario.id_rol,calle,numero,colonia,municipio,estado,pais,codigo_postal 
         FROM usuario,rol,direccionus where rol.id_rol=usuario.id_rol and direccionus.id_usuario=usuario.id_usuario `)
                 .then(([rows]) => {
                 res.json(rows);
@@ -98,12 +98,14 @@ class loginController {
         })
             .catch(() => console.log('error no existe el usuario '));
     }
-    test(req, res) {
+    /*
+    public test ( req:Request,res:Response ){
         res.json('informacion secreta');
-    }
+    }*/
     registeruser(req, res) {
         /* registramos un usuario en la base de datos */
-        database_1.default.promise().query(`insert into usuario (nombre,password,correo,id_rol)  values ('${req.body.nombre}','${req.body.password}','${req.body.correo}','${req.body.id_rol}')`)
+        database_1.default.promise().query(`insert into usuario (nombre,password,correo,id_rol)  values ('${req.body.nombre}','${req.body.password}',
+        '${req.body.correo}','${req.body.id_rol}')`)
             .then(([rows, fields]) => {
             console.log(rows);
         })
@@ -125,8 +127,8 @@ class loginController {
     }
     delete(req, res) {
         /* eliminamos un usuario de la base de datos */
-        database_1.default.promise().query(`DELETE usuario,direccionus FROM usuario,direccionus WHERE 
-        usuario.id_usuario = ${req.params.id} and direccionus.id_usuario = ${req.params.id}`)
+        database_1.default.promise().query(`DELETE usuario,direccionus FROM usuario,direccionus WHERE usuario.id_usuario = direccionus.id_usuario 
+        and usuario.id_usuario = ${req.params.id}`)
             .then(([rows, fields]) => {
             console.log(rows);
         })
@@ -136,13 +138,13 @@ class loginController {
     }
     update(req, res) {
         /* actualizamos un usuario de la base de datos */
-        database_1.default.promise().query(`UPDATE usuario,direccionus SET ? WHERE usuario.id_usuario = ${req.params.id} 
-        AND direccionus.id_usuario = ${req.params.id}`, [req.body])
+        database_1.default.promise().query(`UPDATE usuario,direccionus SET ? WHERE usuario.id_usuario = direccionus.id_usuario  and 
+        usuario.id_usuario = ${req.params.id}`, [req.body])
             .then(([rows, fields]) => {
             console.log(rows);
         })
             .catch(() => console.log('error al editar '))
-            .then(() => console.log('editado...'));
+            .then(() => console.log('editando...'));
         res.json({ message: 'usuario editado..' });
     }
 }

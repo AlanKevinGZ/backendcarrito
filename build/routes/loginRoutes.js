@@ -5,7 +5,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const loginController_1 = __importDefault(require("../controllers/loginController"));
-const loginController_2 = __importDefault(require("../controllers/loginController"));
 const jwt = require('jsonwebtoken');
 class LoginRoutes {
     constructor() {
@@ -22,18 +21,19 @@ class LoginRoutes {
         this.router.post('/registerdirc', loginController_1.default.registerdirc); /* registrar direccion de usuario  */
         this.router.delete('/:id', loginController_1.default.delete); /* eliminar usuario */
         this.router.put('/:id', loginController_1.default.update); /* actualizar usuario */
-        this.router.post('/login', loginController_1.default.login);
-        this.router.post('/test', verifyToken, loginController_2.default.test);
+        this.router.post('/login', loginController_1.default.login); /* iniciar sesion del  usuario */
+        /*
+        this.router.post('/test',verifyToken,loginController.test);*/
     }
 }
-function verifyToken(req, res, next) {
-    if (!req.headers.authorization)
-        return res.status(401).json('no autorizado');
+/*
+function verifyToken(req:Request,res:Response,next:NextFunction){
+    if(!req.headers.authorization) return res.status(401).json('no autorizado');
     const token = req.headers.authorization.substring(7);
-    if (token !== '') {
-        const content = jwt.verify(token, 'stil');
+    if(token!==''){
+        const content = jwt.verify(token,'stil');
         console.log(content);
     }
-}
+}*/
 const indexRoutes = new LoginRoutes();
 exports.default = indexRoutes.router;

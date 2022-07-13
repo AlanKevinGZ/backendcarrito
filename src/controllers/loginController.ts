@@ -30,7 +30,7 @@ class loginController{
 
     public async listurd (req:Request,res:Response){
         /* seleccionamos todos los usuarios, con su rol y su direccion */
-        pool.promise().query(`SELECT usuario.id_usuario,nombre,correo,password,nombre_rol,calle,numero,colonia,municipio,estado,pais,codigo_postal 
+        pool.promise().query(`SELECT usuario.id_usuario,nombre,correo,password,usuario.id_rol,calle,numero,colonia,municipio,estado,pais,codigo_postal 
         FROM usuario,rol,direccionus where rol.id_rol=usuario.id_rol and direccionus.id_usuario=usuario.id_usuario `)
             .then( ([rows]) => {
                 res.json(rows);
@@ -67,6 +67,7 @@ class loginController{
             } )
 
     }
+
     public login(req:Request,res:Response){
         /* ingresar usuario */
         pool.promise().query(`SELECT nombre,id_rol FROM usuario WHERE correo = "${req.body.correo}" AND password = "${req.body.password}"`)
@@ -82,14 +83,15 @@ class loginController{
             )
             .catch(()=>console.log('error no existe el usuario '))
     }
-
+    /*
     public test ( req:Request,res:Response ){
         res.json('informacion secreta');
-    }
+    }*/
 
     public registeruser(req:Request,res:Response){
         /* registramos un usuario en la base de datos */
-        pool.promise().query(`insert into usuario (nombre,password,correo,id_rol)  values ('${req.body.nombre}','${req.body.password}','${req.body.correo}','${req.body.id_rol}')`)
+        pool.promise().query(`insert into usuario (nombre,password,correo,id_rol)  values ('${req.body.nombre}','${req.body.password}',
+        '${req.body.correo}','${req.body.id_rol}')`)
             .then( ([rows,fields]) => {
                 console.log(rows);
             })
@@ -113,8 +115,8 @@ class loginController{
 
     public delete(req:Request,res:Response){
         /* eliminamos un usuario de la base de datos */
-        pool.promise().query(`DELETE usuario,direccionus FROM usuario,direccionus WHERE 
-        usuario.id_usuario = ${req.params.id} and direccionus.id_usuario = ${req.params.id}`)
+        pool.promise().query(`DELETE usuario,direccionus FROM usuario,direccionus WHERE usuario.id_usuario = direccionus.id_usuario 
+        and usuario.id_usuario = ${req.params.id}`)
             .then( ([rows,fields]) => {
                 console.log(rows);
             })
@@ -126,13 +128,13 @@ class loginController{
 
     public update(req:Request,res:Response){
         /* actualizamos un usuario de la base de datos */
-        pool.promise().query(`UPDATE usuario,direccionus SET ? WHERE usuario.id_usuario = ${req.params.id} 
-        AND direccionus.id_usuario = ${req.params.id}`,[req.body])
+        pool.promise().query(`UPDATE usuario,direccionus SET ? WHERE usuario.id_usuario = direccionus.id_usuario  and 
+        usuario.id_usuario = ${req.params.id}`,[req.body])
             .then( ([rows,fields]) => {
                 console.log(rows);
             })
             .catch(()=>console.log('error al editar '))
-            .then( () => console.log('editado...'));
+            .then( () => console.log('editando...'));
         res.json({message:'usuario editado..'});
     }
 }
